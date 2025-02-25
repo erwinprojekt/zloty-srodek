@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>Złoty Środek Odcinka - Gra i Minigierki</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(135deg, #74ABE2, #5563DE);
+      color: #333;
+    }
+    header {
+      text-align: center;
+      padding: 20px;
+      background: rgba(255,255,255,0.8);
+    }
+    h1 { font-size: 2.5em; margin: 0; color: #222; }
+    #content {
+      max-width: 1200px;
+      margin: 20px auto;
+      background: rgba(255,255,255,0.95);
+      padding: 20px;
+      border-radius: 10px;
+    }
+    /* Sekcje – menu, gra, quiz, ekran końca gry */
+    #menu, #gameSection, #quizSection, #gameOverSection {
+      display: none;
+    }
+    #menu.active, #gameSection.active, #quizSection.active, #gameOverSection.active {
+      display: block;
+    }
+    .button {
+      background-color: #5563DE;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      margin: 10px;
+      font-size: 1em;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .button:hover { background-color: #444fb7; }
+    #gameCanvas {
+      background: #fff;
+      border: 3px solid #333;
+      border-radius: 10px;
+      display: block;
+      margin: 0 auto;
+    }
+    #scoreBoard, #lives, #timer {
+      margin-top: 10px;
+      font-size: 1.5em;
+      font-weight: bold;
+      text-align: center;
+    }
+    #instructions {
+      margin-top: 20px;
+      font-size: 0.9em;
+      color: #555;
+    }
+    /* Styl quizu */
+    #quizSection {
+      text-align: center;
+    }
+    #quizQuestion { font-size: 1.3em; margin-bottom: 15px; }
+    .quizOption {
+      display: block;
+      margin: 10px auto;
+      padding: 10px 15px;
+      background-color: #74ABE2;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      width: 80%;
+      max-width: 400px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    .quizOption:hover { background-color: #5563DE; }
+    #gameOverSection { text-align: center; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Złoty Środek Odcinka</h1>
+  </header>
+  
+  <div id="content">
+    <!-- Menu główne -->
+    <section id="menu" class="active">
+      <h2>Witamy w grze!</h2>
+      <p>Wybierz tryb: Gra Fruit Ninja lub Minigierka Quiz o złotym środku.</p>
+      <button id="startGameBtn" class="button">Start Fruit Ninja</button>
+      <button id="startQuizBtn" class="button">Start Quiz</button>
+      <div id="info">
+         <h3>Informacje Matematyczne</h3>
+         <p>
+           Złoty środek (złoty podział) to sposób podziału odcinka, w którym stosunek długości całości do większej części jest równy stosunkowi większej części do mniejszej – wartość ta wynosi około 1.618.
+         </p>
+      </div>
+    </section>
+    
+    <!-- Sekcja gry Fruit Ninja -->
+    <section id="gameSection">
+      <div id="scoreBoard">Punkty: 0</div>
+      <div id="lives">Życia: 3</div>
+      <div id="timer">Czas: 60</div>
+      <canvas id="gameCanvas" width="800" height="600"></canvas>
+      <div id="instructions">
+        <h3>Instrukcja Fruit Ninja</h3>
+        <ul>
+          <li>Przeciągaj myszką lub palcem, aby przeciąć owoce.</li>
+          <li>Każde przecięcie owocu daje 5 punktów, a trafienie w pobliże złotego punktu (mała złota kropka) daje dodatkowe 10 punktów!</li>
+          <li>Uważaj na bomby – przecięcie ich powoduje utratę życia.</li>
+          <li>Gra trwa 60 sekund lub do utraty wszystkich 3 żyć.</li>
+        </ul>
+      </div>
+      <div style="text-align: center; margin-top: 15px;">
+        <button id="resetGameBtn" class="button">Reset Gry</button>
+        <button id="backToMenuBtn" class="button">Powrót do Menu</button>
+      </div>
+    </section>
+    
+    <!-- Sekcja quizu -->
+    <section id="quizSection">
+      <h2>Minigierka Quiz</h2>
+      <div id="quizQuestion">
+        Co oznacza złoty środek?
+      </div>
+      <button class="quizOption" data-answer="A">Podział odcinka w stosunku 1:1</button>
+      <button class="quizOption" data-answer="B">Podział odcinka w stosunku 1:2</button>
+      <button class="quizOption" data-answer="C">
+        Podział odcinka, w którym stosunek całości do większej części jest równy stosunkowi większej części do mniejszej
+      </button>
+      <button class="quizOption" data-answer="D">Podział odcinka w stosunku 2:3</button>
+      <div id="quizFeedback" style="margin-top:15px; font-size:1.1em;"></div>
+      <div style="margin-top: 15px;">
+        <button id="backToMenuBtn2" class="button">Powrót do Menu</button>
+      </div>
+    </section>
+    
+    <!-- Ekran końca gry -->
+    <section id="gameOverSection">
+      <h2>Koniec Gry!</h2>
+      <div id="finalScore">Twój wynik: 0</div>
+      <div style="margin-top: 15px;">
+        <button id="restartGameBtn" class="button">Restartuj Grę</button>
+        <button id="backToMenuBtn3" class="button">Powrót do Menu</button>
+      </div>
+    </section>
+  </div>
+  
+  <script>
+    // Zmienne globalne – stany: "menu", "game", "quiz", "gameover"
+    let gameState = "menu";
+    const menuSection = document.getElementById("menu");
+    const gameSection = document.getElementById("gameSection");
+    const quizSection = document.getElementById("quizSection");
+    const gameOverSection = document.getElementById("gameOverSection");
+    
+    // Przyciskowe elementy menu
+    const startGameBtn = document.getElementById("startGameBtn");
+    const startQuizBtn = document.getElementById("startQuizBtn");
+    const backToMenuBtn = document.getElementById("backToMenuBtn");
+    const backToMenuBtn2 = document.getElementById("backToMenuBtn2");
+    const backToMenuBtn3 = document.getElementById("backToMenuBtn3");
+    
+    // Elementy gry
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    const scoreBoard = document.getElementById("scoreBoard");
+    const livesDisplay = document.getElementById("lives");
+    const timerDisplay = document.getElementById("timer");
+    const resetGameBtn = document.getElementById("resetGameBtn");
+    
+    // Zmienne gry
+    let score = 0;
+    let lives = 3;
+    let timeLeft = 60;
+    let fruits = [];
+    let swipePoints = [];
+    let isSwiping = false;
+    let gameLoopId;
+    let timerInterval;
+    
+    // Audio – użyj własnych dźwięków lub linków do darmowych efektów
+    const sliceSound = new Audio("https://www.myinstants.com/media/sounds/swoosh.mp3");
+    const bombSound = new Audio("https://www.myinstants.com/media/sounds/explosion.mp3");
+    
+    // Konstruktor obiektu Fruit – z symulacją ruchu pociskowego
+    function Fruit(x, y, radius, type) {
+      this.x = x;
+      this.y = y;
+      this.radius = radius;
+      this.type = type; // "fruit" lub "bomb"
+      this.sliced = false;
+      // Parametry fizyki
+      this.vx = (Math.random() - 0.5) * 8;         // losowa prędkość pozioma
+      this.vy = - (8 + Math.random() * 4);           // początkowa prędkość pionowa
+      this.gravity = 0.3;
+    }
+    
+    Fruit.prototype.update = function() {
+      this.x += this.vx;
+      this.y += this.vy;
+      this.vy += this.gravity;
+    };
+    
+    Fruit.prototype.draw = function(ctx) {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+      ctx.fillStyle = this.type === "fruit" ? "red" : "black";
+      ctx.fill();
+      // Dla owoców rysujemy złoty punkt – wskazówka do bonusu
+      if (this.type === "fruit" && !this.sliced) {
+        const phi = 1.618;
+        const goldenX = this.x - this.radius + (2 * this.radius) / phi;
+        const goldenY = this.y;
+        ctx.beginPath();
+        ctx.arc(goldenX, goldenY, 5, 0, Math.PI * 2);
+        ctx.fillStyle = "gold";
+        ctx.fill();
+      }
+    };
+    
+    // Funkcja sprawdzająca bonus – czy ostatni punkt swipe jest w pobliżu złotego środka
+    function checkGoldenBonus(fruit, point) {
+      const phi = 1.618;
+      const goldenX = fruit.x - fruit.radius + (2 * fruit.radius) / phi;
+      const goldenY = fruit.y;
+      const dx = point.x - goldenX;
+      const dy = point.y - goldenY;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      return (distance < 20);
+    }
+    
+    // Aktualizacja wyświetlaczy punktów, żyć i czasu
+    function updateDisplays() {
+      scoreBoard.textContent = "Punkty: " + score;
+      livesDisplay.textContent = "Życia: " + lives;
+      timerDisplay.textContent = "Czas: " + timeLeft;
+    }
+    
+    // Główna pętla gry Fruit Ninja
+    function gameLoop() {
+      if (gameState !== "game") return;
+      
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Aktualizacja i rysowanie owoców/bomb
+      for (let i = fruits.length - 1; i >= 0; i--) {
+        let fruit = fruits[i];
+        fruit.update();
+        fruit.draw(ctx);
+        // Usuwamy obiekt, gdy opuszcza ekran
+        if (fruit.y - fruit.radius > canvas.height) {
+          fruits.splice(i, 1);
+        }
+      }
+      
+      // Rysowanie ścieżki swipe
+      if (swipePoints.length > 1) {
+        ctx.strokeStyle = "rgba(0, 255, 0, 0.5)";
+        ctx.lineWidth = 5;
+        ctx.beginPath();
+        ctx.moveTo(swipePoints[0].x, swipePoints[0].y);
+        for (let i = 1; i < swipePoints.length; i++) {
+          ctx.lineTo(swipePoints[i].x, swipePoints[i].y);
+        }
+        ctx.stroke();
+      }
+      
+      // Losowe pojawianie się nowych owoców lub bomb
+      if (Math.random() < 0.03) {
+        const x = Math.random() * (canvas.width - 60) + 30;
+        const y = canvas.height + 30;
+        const radius = 30;
+        const type = (Math.random() < 0.1) ? "bomb" : "fruit";
+        fruits.push(new Fruit(x, y, radius, type));
+      }
+      
+      gameLoopId = requestAnimationFrame(gameLoop);
+    }
+    
+    // Licznik czasu
+    function startTimer() {
+      timerInterval = setInterval(function() {
+        if (timeLeft > 0) {
+          timeLeft--;
+          updateDisplays();
+        } else {
+          endGame();
+        }
+      }, 1000);
+    }
+    
+    // Zakończenie gry – wyświetlenie ekranu końca gry
+    function endGame() {
+      clearInterval(timerInterval);
+      gameState = "gameover";
+      cancelAnimationFrame(gameLoopId);
+      document.getElementById("finalScore").textContent = "Twój wynik: " + score;
+      showSection("gameover");
+    }
+    
+    // Obsługa zdarzeń myszy – wykrywanie swipe na kanwie
+    canvas.addEventListener("mousedown", function(e) {
+      if (gameState !== "game") return;
+      isSwiping = true;
+      swipePoints = [{ x: e.offsetX, y: e.offsetY }];
+    });
+    
+    canvas.addEventListener("mousemove", function(e) {
+      if (!isSwiping || gameState !== "game") return;
+      const currentPoint = { x: e.offsetX, y: e.offsetY };
+      swipePoints.push(currentPoint);
+      // Sprawdzenie kolizji z owocami i bombami
+      fruits.forEach(fruit => {
+        if (!fruit.sliced) {
+          const dx = currentPoint.x - fruit.x;
+          const dy = currentPoint.y - fruit.y;
+          if (Math.sqrt(dx*dx + dy*dy) < fruit.radius) {
+            fruit.sliced = true;
+            if (fruit.type === "fruit") {
+              let bonus = checkGoldenBonus(fruit, currentPoint) ? 10 : 0;
+              score += 5 + bonus;
+              sliceSound.play();
+            } else if (fruit.type === "bomb") {
+              lives--;
+              bombSound.play();
+              if (lives <= 0) { endGame(); }
+            }
+            updateDisplays();
+          }
+        }
+      });
+    });
+    
+    canvas.addEventListener("mouseup", function(e) {
+      isSwiping = false;
+      swipePoints = [];
+    });
+    
+    // Funkcje sterujące grą
+    function startGame() {
+      gameState = "game";
+      score = 0;
+      lives = 3;
+      timeLeft = 60;
+      fruits = [];
+      swipePoints = [];
+      updateDisplays();
+      showSection("game");
+      startTimer();
+      gameLoop();
+    }
+    
+    function resetGame() {
+      clearInterval(timerInterval);
+      cancelAnimationFrame(gameLoopId);
+      startGame();
+    }
+    
+    // Logika minigierki Quiz
+    const quizOptions = document.querySelectorAll(".quizOption");
+    const quizFeedback = document.getElementById("quizFeedback");
+    quizOptions.forEach(option => {
+      option.addEventListener("click", function() {
+        const answer = this.getAttribute("data-answer");
+        if (answer === "C") {
+          quizFeedback.textContent = "Brawo! To poprawna odpowiedź.";
+        } else {
+          quizFeedback.textContent = "Niestety, to niepoprawna odpowiedź. Spróbuj ponownie!";
+        }
+      });
+    });
+    
+    // Funkcja przełączająca widoczność sekcji
+    function showSection(section) {
+      menuSection.classList.remove("active");
+      gameSection.classList.remove("active");
+      quizSection.classList.remove("active");
+      gameOverSection.classList.remove("active");
+      
+      if (section === "menu") { menuSection.classList.add("active"); }
+      else if (section === "game") { gameSection.classList.add("active"); }
+      else if (section === "quiz") { quizSection.classList.add("active"); }
+      else if (section === "gameover") { gameOverSection.classList.add("active"); }
+    }
+    
+    // Podpięcie przycisków
+    startGameBtn.addEventListener("click", startGame);
+    startQuizBtn.addEventListener("click", function() {
+      gameState = "quiz";
+      showSection("quiz");
+    });
+    backToMenuBtn.addEventListener("click", function() {
+      gameState = "menu";
+      showSection("menu");
+    });
+    backToMenuBtn2.addEventListener("click", function() {
+      gameState = "menu";
+      showSection("menu");
+    });
+    backToMenuBtn3.addEventListener("click", function() {
+      gameState = "menu";
+      showSection("menu");
+    });
+    resetGameBtn.addEventListener("click", resetGame);
+  </script>
+</body>
+</html>
