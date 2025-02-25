@@ -2,415 +2,502 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8">
-  <title>Złoty Środek Odcinka - Gra i Minigierki</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <title>Złoty Środek – Gry, Quiz i Historia</title>
   <style>
+    /* Ogólne style */
     body {
       margin: 0;
       padding: 0;
-      font-family: 'Roboto', sans-serif;
+      font-family: Arial, sans-serif;
       background: linear-gradient(135deg, #74ABE2, #5563DE);
       color: #333;
     }
     header {
       text-align: center;
       padding: 20px;
-      background: rgba(255,255,255,0.8);
+      background: rgba(255,255,255,0.9);
     }
-    h1 { font-size: 2.5em; margin: 0; color: #222; }
+    h1 { margin: 0; font-size: 2.5em; }
     #content {
-      max-width: 1200px;
+      max-width: 1000px;
       margin: 20px auto;
-      background: rgba(255,255,255,0.95);
+      background: #fff;
       padding: 20px;
       border-radius: 10px;
     }
-    /* Sekcje – menu, gra, quiz, ekran końca gry */
-    #menu, #gameSection, #quizSection, #gameOverSection {
-      display: none;
-    }
-    #menu.active, #gameSection.active, #quizSection.active, #gameOverSection.active {
-      display: block;
-    }
+    section { display: none; }
+    section.active { display: block; }
     .button {
-      background-color: #5563DE;
+      background: #5563DE;
       color: #fff;
       border: none;
       padding: 10px 20px;
       margin: 10px;
-      font-size: 1em;
       border-radius: 5px;
       cursor: pointer;
-      transition: background-color 0.3s ease;
     }
-    .button:hover { background-color: #444fb7; }
-    #gameCanvas {
-      background: #fff;
-      border: 3px solid #333;
-      border-radius: 10px;
-      display: block;
-      margin: 0 auto;
-    }
-    #scoreBoard, #lives, #timer {
-      margin-top: 10px;
-      font-size: 1.5em;
-      font-weight: bold;
-      text-align: center;
-    }
-    #instructions {
-      margin-top: 20px;
-      font-size: 0.9em;
-      color: #555;
-    }
-    /* Styl quizu */
-    #quizSection {
-      text-align: center;
-    }
-    #quizQuestion { font-size: 1.3em; margin-bottom: 15px; }
-    .quizOption {
+    .button:hover { background: #444fb7; }
+    canvas {
+      background: #eee;
+      border: 2px solid #333;
       display: block;
       margin: 10px auto;
-      padding: 10px 15px;
-      background-color: #74ABE2;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      width: 80%;
-      max-width: 400px;
-      cursor: pointer;
-      transition: background-color 0.3s;
     }
-    .quizOption:hover { background-color: #5563DE; }
-    #gameOverSection { text-align: center; }
+    .infoBox {
+      text-align: center;
+      margin: 10px 0;
+    }
   </style>
 </head>
 <body>
   <header>
-    <h1>Złoty Środek Odcinka</h1>
+    <h1>Złoty Środek</h1>
   </header>
   
   <div id="content">
-    <!-- Menu główne -->
+    <!-- MENU GŁÓWNE -->
     <section id="menu" class="active">
-      <h2>Witamy w grze!</h2>
-      <p>Wybierz tryb: Gra Fruit Ninja lub Minigierka Quiz o złotym środku.</p>
-      <button id="startGameBtn" class="button">Start Fruit Ninja</button>
-      <button id="startQuizBtn" class="button">Start Quiz</button>
-      <div id="info">
-         <h3>Informacje Matematyczne</h3>
-         <p>
-           Złoty środek (złoty podział) to sposób podziału odcinka, w którym stosunek długości całości do większej części jest równy stosunkowi większej części do mniejszej – wartość ta wynosi około 1.618.
-         </p>
+      <h2>Wybierz tryb:</h2>
+      <button id="btnFruitNinja" class="button">Fruit Ninja</button>
+      <button id="btnHistoria" class="button">Historia Złotego Środka</button>
+      <button id="btnAppleGame" class="button">Przetnij Jabłko</button>
+      <div class="infoBox">
+        <h3>O złotym środku</h3>
+        <p>Złoty środek (złoty podział) to podział odcinka, w którym stosunek całości do większej części jest równy stosunkowi większej części do mniejszej – wartość ≈1.618.</p>
       </div>
     </section>
     
-    <!-- Sekcja gry Fruit Ninja -->
-    <section id="gameSection">
-      <div id="scoreBoard">Punkty: 0</div>
-      <div id="lives">Życia: 3</div>
-      <div id="timer">Czas: 60</div>
-      <canvas id="gameCanvas" width="800" height="600"></canvas>
-      <div id="instructions">
-        <h3>Instrukcja Fruit Ninja</h3>
-        <ul>
-          <li>Przeciągaj myszką lub palcem, aby przeciąć owoce.</li>
-          <li>Każde przecięcie owocu daje 5 punktów, a trafienie w pobliże złotego punktu (mała złota kropka) daje dodatkowe 10 punktów!</li>
-          <li>Uważaj na bomby – przecięcie ich powoduje utratę życia.</li>
-          <li>Gra trwa 60 sekund lub do utraty wszystkich 3 żyć.</li>
-        </ul>
+    <!-- FRUIT NINJA -->
+    <section id="fruitNinjaSection">
+      <div style="text-align:center;">
+        <span id="fnScore">Punkty: 0</span> &nbsp;&nbsp;
+        <span id="fnLives">Życia: 3</span> &nbsp;&nbsp;
+        <span id="fnTimer">Czas: 60</span>
       </div>
-      <div style="text-align: center; margin-top: 15px;">
-        <button id="resetGameBtn" class="button">Reset Gry</button>
-        <button id="backToMenuBtn" class="button">Powrót do Menu</button>
+      <canvas id="fnCanvas" width="800" height="600"></canvas>
+      <div class="infoBox">
+        <p>Przeciągaj myszką (lub palcem) po planszy, aby przeciąć owoce. Każde przecięcie owocu daje 5 punktów, a jeśli cięcie nastąpi blisko złotego punktu (mały złoty krążek) – otrzymasz bonus 10 punktów. Uważaj na bomby (czarne kręgi) – ich przecięcie powoduje utratę życia.</p>
+      </div>
+      <div style="text-align:center;">
+        <button id="btnResetFN" class="button">Resetuj grę</button>
+        <button id="btnBackFN" class="button">Powrót do Menu</button>
       </div>
     </section>
     
-    <!-- Sekcja quizu -->
-    <section id="quizSection">
-      <h2>Minigierka Quiz</h2>
-      <div id="quizQuestion">
-        Co oznacza złoty środek?
-      </div>
-      <button class="quizOption" data-answer="A">Podział odcinka w stosunku 1:1</button>
-      <button class="quizOption" data-answer="B">Podział odcinka w stosunku 1:2</button>
-      <button class="quizOption" data-answer="C">
-        Podział odcinka, w którym stosunek całości do większej części jest równy stosunkowi większej części do mniejszej
-      </button>
-      <button class="quizOption" data-answer="D">Podział odcinka w stosunku 2:3</button>
-      <div id="quizFeedback" style="margin-top:15px; font-size:1.1em;"></div>
-      <div style="margin-top: 15px;">
-        <button id="backToMenuBtn2" class="button">Powrót do Menu</button>
-      </div>
-    </section>
-    
-    <!-- Ekran końca gry -->
+    <!-- EKRAN KOŃCA FRUIT NINJA -->
     <section id="gameOverSection">
-      <h2>Koniec Gry!</h2>
-      <div id="finalScore">Twój wynik: 0</div>
-      <div style="margin-top: 15px;">
-        <button id="restartGameBtn" class="button">Restartuj Grę</button>
-        <button id="backToMenuBtn3" class="button">Powrót do Menu</button>
+      <h2>Koniec Gry Fruit Ninja!</h2>
+      <div id="fnFinalScore" class="infoBox">Twój wynik: 0</div>
+      <div style="text-align:center;">
+        <button id="btnRestartFN" class="button">Restart</button>
+        <button id="btnBackFN2" class="button">Powrót do Menu</button>
       </div>
     </section>
+    
+    <!-- HISTORIA / QUIZ (NA RAZ) -->
+    <section id="historiaSection">
+      <div id="historiaContent" class="infoBox">
+        <!-- Zawartość (info lub quiz) ładowana dynamicznie -->
+      </div>
+      <div id="historiaFeedback" class="infoBox" style="font-weight: bold;"></div>
+      <div style="text-align:center;">
+        <button id="btnNextHistoria" class="button">Dalej</button>
+        <button id="btnBackHistoria" class="button">Powrót do Menu</button>
+      </div>
+    </section>
+    
+    <!-- PRZETNIJ JABŁKO -->
+    <section id="appleGameSection">
+      <h2>Przetnij Jabłko</h2>
+      <canvas id="appleCanvas" width="400" height="400"></canvas>
+      <div id="appleResult" class="infoBox"></div>
+      <div style="text-align:center;">
+        <button id="btnRetryApple" class="button">Spróbuj ponownie</button>
+        <button id="btnBackApple" class="button">Powrót do Menu</button>
+      </div>
+      <div class="infoBox">
+        <p>Twoim zadaniem jest przeciąć jabłko możliwie jak najbliżej ukrytego złotego środka. Punkt nie jest widoczny!</p>
+      </div>
+    </section>
+    
   </div>
   
   <script>
-    // Zmienne globalne – stany: "menu", "game", "quiz", "gameover"
-    let gameState = "menu";
-    const menuSection = document.getElementById("menu");
-    const gameSection = document.getElementById("gameSection");
-    const quizSection = document.getElementById("quizSection");
-    const gameOverSection = document.getElementById("gameOverSection");
-    
-    // Przyciskowe elementy menu
-    const startGameBtn = document.getElementById("startGameBtn");
-    const startQuizBtn = document.getElementById("startQuizBtn");
-    const backToMenuBtn = document.getElementById("backToMenuBtn");
-    const backToMenuBtn2 = document.getElementById("backToMenuBtn2");
-    const backToMenuBtn3 = document.getElementById("backToMenuBtn3");
-    
-    // Elementy gry
-    const canvas = document.getElementById("gameCanvas");
-    const ctx = canvas.getContext("2d");
-    const scoreBoard = document.getElementById("scoreBoard");
-    const livesDisplay = document.getElementById("lives");
-    const timerDisplay = document.getElementById("timer");
-    const resetGameBtn = document.getElementById("resetGameBtn");
-    
-    // Zmienne gry
-    let score = 0;
-    let lives = 3;
-    let timeLeft = 60;
-    let fruits = [];
-    let swipePoints = [];
-    let isSwiping = false;
-    let gameLoopId;
-    let timerInterval;
-    
-    // Audio – użyj własnych dźwięków lub linków do darmowych efektów
-    const sliceSound = new Audio("https://www.myinstants.com/media/sounds/swoosh.mp3");
-    const bombSound = new Audio("https://www.myinstants.com/media/sounds/explosion.mp3");
-    
-    // Konstruktor obiektu Fruit – z symulacją ruchu pociskowego
-    function Fruit(x, y, radius, type) {
-      this.x = x;
-      this.y = y;
-      this.radius = radius;
-      this.type = type; // "fruit" lub "bomb"
-      this.sliced = false;
-      // Parametry fizyki
-      this.vx = (Math.random() - 0.5) * 8;         // losowa prędkość pozioma
-      this.vy = - (8 + Math.random() * 4);           // początkowa prędkość pionowa
-      this.gravity = 0.3;
+    /***********************
+     * PRZEŁĄCZANIE SEKCJI
+     ***********************/
+    const sections = {
+      menu: document.getElementById("menu"),
+      fruitNinja: document.getElementById("fruitNinjaSection"),
+      gameOver: document.getElementById("gameOverSection"),
+      historia: document.getElementById("historiaSection"),
+      apple: document.getElementById("appleGameSection")
+    };
+    function showSection(name) {
+      for (let key in sections) {
+        sections[key].classList.remove("active");
+      }
+      sections[name].classList.add("active");
     }
     
-    Fruit.prototype.update = function() {
+    /***********************
+     * MENU PRZYCISKI
+     ***********************/
+    document.getElementById("btnFruitNinja").addEventListener("click", () => {
+      startFruitNinja();
+      showSection("fruitNinja");
+    });
+    document.getElementById("btnHistoria").addEventListener("click", () => {
+      startHistoria();
+      showSection("historia");
+    });
+    document.getElementById("btnAppleGame").addEventListener("click", () => {
+      startAppleGame();
+      showSection("apple");
+    });
+    // Powrót z poszczególnych trybów do menu:
+    document.getElementById("btnBackFN").addEventListener("click", () => { cancelFNGame(); showSection("menu"); });
+    document.getElementById("btnBackFN2").addEventListener("click", () => { cancelFNGame(); showSection("menu"); });
+    document.getElementById("btnBackHistoria").addEventListener("click", () => { showSection("menu"); });
+    document.getElementById("btnBackApple").addEventListener("click", () => { showSection("menu"); });
+    
+    /***********************
+     * FRUIT NINJA MODE
+     ***********************/
+    const fnCanvas = document.getElementById("fnCanvas");
+    const fnCtx = fnCanvas.getContext("2d");
+    let fnScore = 0, fnLives = 3, fnTime = 60;
+    let fnFruits = [];
+    let fnSwipePoints = [];
+    let fnIsSwiping = false;
+    let fnTimerInterval, fnGameLoopId;
+    
+    // Konstruktor owocu do Fruit Ninja
+    function FN_Fruit(x, y, type) {
+      this.x = x;
+      this.y = y;
+      this.radius = 30;
+      this.type = type; // "fruit" lub "bomb"
+      this.sliced = false;
+      this.vx = (Math.random() - 0.5) * 8;
+      this.vy = - (8 + Math.random() * 4);
+      this.gravity = 0.3;
+      if(this.type === "fruit") {
+        const fruitTypes = ["apple", "banana", "orange", "watermelon"];
+        this.fruitType = fruitTypes[Math.floor(Math.random() * fruitTypes.length)];
+      }
+    }
+    FN_Fruit.prototype.update = function() {
       this.x += this.vx;
       this.y += this.vy;
       this.vy += this.gravity;
     };
-    
-    Fruit.prototype.draw = function(ctx) {
-      ctx.beginPath();
-      ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-      ctx.fillStyle = this.type === "fruit" ? "red" : "black";
-      ctx.fill();
-      // Dla owoców rysujemy złoty punkt – wskazówka do bonusu
-      if (this.type === "fruit" && !this.sliced) {
-        const phi = 1.618;
-        const goldenX = this.x - this.radius + (2 * this.radius) / phi;
-        const goldenY = this.y;
+    // Rysowanie – zamiast obrazków, rysujemy kształty
+    FN_Fruit.prototype.draw = function(ctx) {
+      if(this.type === "bomb") {
+        drawBomb(ctx, this);
+      } else {
+        // W zależności od rodzaju owocu:
+        switch(this.fruitType) {
+          case "apple": drawApple(ctx, this); break;
+          case "banana": drawBanana(ctx, this); break;
+          case "orange": drawOrange(ctx, this); break;
+          case "watermelon": drawWatermelon(ctx, this); break;
+        }
+        // Rysujemy złoty punkt (bonus)
+        let phi = 1.618;
+        let goldenX = this.x - this.radius + (2 * this.radius) / phi;
+        let goldenY = this.y;
         ctx.beginPath();
-        ctx.arc(goldenX, goldenY, 5, 0, Math.PI * 2);
+        ctx.arc(goldenX, goldenY, 5, 0, Math.PI*2);
         ctx.fillStyle = "gold";
         ctx.fill();
       }
     };
     
-    // Funkcja sprawdzająca bonus – czy ostatni punkt swipe jest w pobliżu złotego środka
-    function checkGoldenBonus(fruit, point) {
-      const phi = 1.618;
-      const goldenX = fruit.x - fruit.radius + (2 * fruit.radius) / phi;
-      const goldenY = fruit.y;
-      const dx = point.x - goldenX;
-      const dy = point.y - goldenY;
-      const distance = Math.sqrt(dx * dx + dy * dy);
-      return (distance < 20);
+    // Funkcje rysujące poszczególne owoce i bombę:
+    function drawApple(ctx, fruit) {
+      ctx.beginPath();
+      ctx.arc(fruit.x, fruit.y, fruit.radius, 0, Math.PI*2);
+      ctx.fillStyle = "red";
+      ctx.fill();
+      // Rysujemy łodygę
+      ctx.beginPath();
+      ctx.moveTo(fruit.x, fruit.y - fruit.radius);
+      ctx.lineTo(fruit.x, fruit.y - fruit.radius - 10);
+      ctx.strokeStyle = "green";
+      ctx.lineWidth = 3;
+      ctx.stroke();
+    }
+    function drawBanana(ctx, fruit) {
+      ctx.beginPath();
+      ctx.arc(fruit.x, fruit.y, fruit.radius, 0, Math.PI*2);
+      ctx.fillStyle = "yellow";
+      ctx.fill();
+    }
+    function drawOrange(ctx, fruit) {
+      ctx.beginPath();
+      ctx.arc(fruit.x, fruit.y, fruit.radius, 0, Math.PI*2);
+      ctx.fillStyle = "orange";
+      ctx.fill();
+    }
+    function drawWatermelon(ctx, fruit) {
+      // Zewnętrzny okrąg – skórka
+      ctx.beginPath();
+      ctx.arc(fruit.x, fruit.y, fruit.radius, 0, Math.PI*2);
+      ctx.fillStyle = "green";
+      ctx.fill();
+      // Wewnętrzny okrąg – miąższ
+      ctx.beginPath();
+      ctx.arc(fruit.x, fruit.y, fruit.radius * 0.7, 0, Math.PI*2);
+      ctx.fillStyle = "pink";
+      ctx.fill();
+    }
+    function drawBomb(ctx, fruit) {
+      ctx.beginPath();
+      ctx.arc(fruit.x, fruit.y, fruit.radius, 0, Math.PI*2);
+      ctx.fillStyle = "black";
+      ctx.fill();
+      // Rysujemy knot
+      ctx.beginPath();
+      ctx.moveTo(fruit.x, fruit.y - fruit.radius);
+      ctx.lineTo(fruit.x, fruit.y - fruit.radius - 10);
+      ctx.strokeStyle = "red";
+      ctx.lineWidth = 2;
+      ctx.stroke();
     }
     
-    // Aktualizacja wyświetlaczy punktów, żyć i czasu
-    function updateDisplays() {
-      scoreBoard.textContent = "Punkty: " + score;
-      livesDisplay.textContent = "Życia: " + lives;
-      timerDisplay.textContent = "Czas: " + timeLeft;
+    function updateFNDisplays() {
+      document.getElementById("fnScore").textContent = "Punkty: " + fnScore;
+      document.getElementById("fnLives").textContent = "Życia: " + fnLives;
+      document.getElementById("fnTimer").textContent = "Czas: " + fnTime;
     }
     
-    // Główna pętla gry Fruit Ninja
-    function gameLoop() {
-      if (gameState !== "game") return;
-      
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
-      // Aktualizacja i rysowanie owoców/bomb
-      for (let i = fruits.length - 1; i >= 0; i--) {
-        let fruit = fruits[i];
+    function fnGameLoop() {
+      fnCtx.clearRect(0, 0, fnCanvas.width, fnCanvas.height);
+      // Aktualizacja i rysowanie owoców
+      for (let i = fnFruits.length - 1; i >= 0; i--) {
+        let fruit = fnFruits[i];
         fruit.update();
-        fruit.draw(ctx);
-        // Usuwamy obiekt, gdy opuszcza ekran
-        if (fruit.y - fruit.radius > canvas.height) {
-          fruits.splice(i, 1);
+        if(!fruit.sliced) {
+          fruit.draw(fnCtx);
+        }
+        if(fruit.y - fruit.radius > fnCanvas.height) {
+          fnFruits.splice(i, 1);
         }
       }
-      
-      // Rysowanie ścieżki swipe
-      if (swipePoints.length > 1) {
-        ctx.strokeStyle = "rgba(0, 255, 0, 0.5)";
-        ctx.lineWidth = 5;
-        ctx.beginPath();
-        ctx.moveTo(swipePoints[0].x, swipePoints[0].y);
-        for (let i = 1; i < swipePoints.length; i++) {
-          ctx.lineTo(swipePoints[i].x, swipePoints[i].y);
+      // Rysowanie ścieżki swipa
+      if(fnSwipePoints.length > 1) {
+        fnCtx.strokeStyle = "rgba(0,255,0,0.5)";
+        fnCtx.lineWidth = 5;
+        fnCtx.beginPath();
+        fnCtx.moveTo(fnSwipePoints[0].x, fnSwipePoints[0].y);
+        for(let i = 1; i < fnSwipePoints.length; i++){
+          fnCtx.lineTo(fnSwipePoints[i].x, fnSwipePoints[i].y);
         }
-        ctx.stroke();
+        fnCtx.stroke();
       }
-      
-      // Losowe pojawianie się nowych owoców lub bomb
-      if (Math.random() < 0.03) {
-        const x = Math.random() * (canvas.width - 60) + 30;
-        const y = canvas.height + 30;
-        const radius = 30;
-        const type = (Math.random() < 0.1) ? "bomb" : "fruit";
-        fruits.push(new Fruit(x, y, radius, type));
+      // Losowe dodawanie owoców lub bomb
+      if(Math.random() < 0.03) {
+        let x = Math.random() * (fnCanvas.width - 60) + 30;
+        let y = fnCanvas.height + 30;
+        let type = (Math.random() < 0.1) ? "bomb" : "fruit";
+        fnFruits.push(new FN_Fruit(x, y, type));
       }
-      
-      gameLoopId = requestAnimationFrame(gameLoop);
+      fnGameLoopId = requestAnimationFrame(fnGameLoop);
+      updateFNDisplays();
     }
     
-    // Licznik czasu
-    function startTimer() {
-      timerInterval = setInterval(function() {
-        if (timeLeft > 0) {
-          timeLeft--;
-          updateDisplays();
-        } else {
-          endGame();
-        }
-      }, 1000);
-    }
-    
-    // Zakończenie gry – wyświetlenie ekranu końca gry
-    function endGame() {
-      clearInterval(timerInterval);
-      gameState = "gameover";
-      cancelAnimationFrame(gameLoopId);
-      document.getElementById("finalScore").textContent = "Twój wynik: " + score;
-      showSection("gameover");
-    }
-    
-    // Obsługa zdarzeń myszy – wykrywanie swipe na kanwie
-    canvas.addEventListener("mousedown", function(e) {
-      if (gameState !== "game") return;
-      isSwiping = true;
-      swipePoints = [{ x: e.offsetX, y: e.offsetY }];
+    // Obsługa zdarzeń myszy dla Fruit Ninja
+    fnCanvas.addEventListener("mousedown", function(e) {
+      fnIsSwiping = true;
+      fnSwipePoints = [{ x: e.offsetX, y: e.offsetY }];
     });
-    
-    canvas.addEventListener("mousemove", function(e) {
-      if (!isSwiping || gameState !== "game") return;
-      const currentPoint = { x: e.offsetX, y: e.offsetY };
-      swipePoints.push(currentPoint);
-      // Sprawdzenie kolizji z owocami i bombami
-      fruits.forEach(fruit => {
-        if (!fruit.sliced) {
-          const dx = currentPoint.x - fruit.x;
-          const dy = currentPoint.y - fruit.y;
-          if (Math.sqrt(dx*dx + dy*dy) < fruit.radius) {
+    fnCanvas.addEventListener("mousemove", function(e) {
+      if(!fnIsSwiping) return;
+      let pt = { x: e.offsetX, y: e.offsetY };
+      fnSwipePoints.push(pt);
+      // Sprawdzenie kolizji z owocami
+      fnFruits.forEach(fruit => {
+        if(!fruit.sliced) {
+          let dx = pt.x - fruit.x, dy = pt.y - fruit.y;
+          if(Math.sqrt(dx*dx + dy*dy) < fruit.radius) {
             fruit.sliced = true;
-            if (fruit.type === "fruit") {
-              let bonus = checkGoldenBonus(fruit, currentPoint) ? 10 : 0;
-              score += 5 + bonus;
-              sliceSound.play();
-            } else if (fruit.type === "bomb") {
-              lives--;
-              bombSound.play();
-              if (lives <= 0) { endGame(); }
+            if(fruit.type === "fruit") {
+              let phi = 1.618;
+              let goldenX = fruit.x - fruit.radius + (2*fruit.radius)/phi;
+              let goldenY = fruit.y;
+              let d = Math.sqrt((pt.x - goldenX)**2 + (pt.y - goldenY)**2);
+              let bonus = (d < 20) ? 10 : 0;
+              fnScore += 5 + bonus;
+            } else { // bomba
+              fnLives--;
             }
-            updateDisplays();
           }
         }
       });
     });
-    
-    canvas.addEventListener("mouseup", function(e) {
-      isSwiping = false;
-      swipePoints = [];
+    fnCanvas.addEventListener("mouseup", function(e) {
+      fnIsSwiping = false;
+      fnSwipePoints = [];
     });
     
-    // Funkcje sterujące grą
-    function startGame() {
-      gameState = "game";
-      score = 0;
-      lives = 3;
-      timeLeft = 60;
-      fruits = [];
-      swipePoints = [];
-      updateDisplays();
-      showSection("game");
-      startTimer();
-      gameLoop();
-    }
-    
-    function resetGame() {
-      clearInterval(timerInterval);
-      cancelAnimationFrame(gameLoopId);
-      startGame();
-    }
-    
-    // Logika minigierki Quiz
-    const quizOptions = document.querySelectorAll(".quizOption");
-    const quizFeedback = document.getElementById("quizFeedback");
-    quizOptions.forEach(option => {
-      option.addEventListener("click", function() {
-        const answer = this.getAttribute("data-answer");
-        if (answer === "C") {
-          quizFeedback.textContent = "Brawo! To poprawna odpowiedź.";
-        } else {
-          quizFeedback.textContent = "Niestety, to niepoprawna odpowiedź. Spróbuj ponownie!";
+    function startFruitNinja() {
+      fnScore = 0; fnLives = 3; fnTime = 60;
+      fnFruits = []; fnSwipePoints = [];
+      updateFNDisplays();
+      clearInterval(fnTimerInterval);
+      fnTimerInterval = setInterval(() => {
+        fnTime--;
+        if(fnTime <= 0 || fnLives <= 0) {
+          endFNGame();
         }
-      });
-    });
+        updateFNDisplays();
+      }, 1000);
+      fnGameLoop();
+    }
+    function endFNGame() {
+      clearInterval(fnTimerInterval);
+      cancelAnimationFrame(fnGameLoopId);
+      document.getElementById("fnFinalScore").textContent = "Twój wynik: " + fnScore;
+      showSection("gameOver");
+    }
+    function cancelFNGame() {
+      clearInterval(fnTimerInterval);
+      cancelAnimationFrame(fnGameLoopId);
+    }
+    document.getElementById("btnResetFN").addEventListener("click", startFruitNinja);
+    document.getElementById("btnRestartFN").addEventListener("click", startFruitNinja);
     
-    // Funkcja przełączająca widoczność sekcji
-    function showSection(section) {
-      menuSection.classList.remove("active");
-      gameSection.classList.remove("active");
-      quizSection.classList.remove("active");
-      gameOverSection.classList.remove("active");
-      
-      if (section === "menu") { menuSection.classList.add("active"); }
-      else if (section === "game") { gameSection.classList.add("active"); }
-      else if (section === "quiz") { quizSection.classList.add("active"); }
-      else if (section === "gameover") { gameOverSection.classList.add("active"); }
+    /***********************
+     * HISTORIA / QUIZ MODE
+     * (Na przemian: informacja → quiz → informacja → quiz → …)
+     ***********************/
+    const historiaSteps = [
+      { type: "info", content: "<h3>Informacja 1</h3><p>Złoty podział był znany już w starożytności. Architekci i artyści wykorzystywali go w swoich dziełach.</p>" },
+      { type: "quiz", question: "Który starożytny artysta był znany z wykorzystania złotego podziału?", options: ["Pitagoras", "Phidias", "Archimedes", "Euclid"], answer: 1 },
+      { type: "info", content: "<h3>Informacja 2</h3><p>W renesansie złoty podział zyskał nową popularność – mistrzowie malarstwa wykorzystywali go, aby osiągnąć harmonię dzieł.</p>" },
+      { type: "quiz", question: "Który renesansowy artysta stosował złoty podział w swoich pracach?", options: ["Leonardo da Vinci", "Michelangelo", "Raphael", "Donatello"], answer: 0 },
+      { type: "info", content: "<h3>Informacja 3</h3><p>Współczesna architektura i design nadal czerpią inspirację z harmonii złotego podziału.</p>" },
+      { type: "quiz", question: "Jaki jest przybliżony stosunek złotego podziału?", options: ["1.5", "1.618", "2", "1.732"], answer: 1 }
+    ];
+    let currentHistoriaIndex = 0;
+    function loadHistoriaStep() {
+      const container = document.getElementById("historiaContent");
+      const feedback = document.getElementById("historiaFeedback");
+      feedback.textContent = "";
+      if(currentHistoriaIndex >= historiaSteps.length) {
+        container.innerHTML = "<h3>Koniec historii!</h3>";
+        document.getElementById("btnNextHistoria").style.display = "none";
+        return;
+      }
+      let step = historiaSteps[currentHistoriaIndex];
+      if(step.type === "info") {
+        container.innerHTML = step.content;
+      } else if(step.type === "quiz") {
+        let html = `<h3>${step.question}</h3>`;
+        step.options.forEach((opt, idx) => {
+          html += `<button class="button historiaOption" data-index="${idx}">${opt}</button>`;
+        });
+        container.innerHTML = html;
+        document.querySelectorAll(".historiaOption").forEach(btn => {
+          btn.addEventListener("click", function() {
+            const selected = parseInt(this.getAttribute("data-index"));
+            if(selected === step.answer) {
+              feedback.textContent = "Poprawna odpowiedź!";
+            } else {
+              feedback.textContent = "Błędna odpowiedź.";
+            }
+          });
+        });
+      }
+    }
+    document.getElementById("btnNextHistoria").addEventListener("click", function() {
+      currentHistoriaIndex++;
+      loadHistoriaStep();
+    });
+    function startHistoria() {
+      currentHistoriaIndex = 0;
+      document.getElementById("btnNextHistoria").style.display = "inline-block";
+      loadHistoriaStep();
     }
     
-    // Podpięcie przycisków
-    startGameBtn.addEventListener("click", startGame);
-    startQuizBtn.addEventListener("click", function() {
-      gameState = "quiz";
-      showSection("quiz");
+    /***********************
+     * PRZETNIJ JABŁKO
+     ***********************/
+    const appleCanvas = document.getElementById("appleCanvas");
+    const appleCtx = appleCanvas.getContext("2d");
+    const appleResultDiv = document.getElementById("appleResult");
+    let appleSwipePoints = [];
+    let appleIsSwiping = false;
+    const appleX = appleCanvas.width / 2;
+    const appleY = appleCanvas.height / 2;
+    const appleRadius = 80;
+    const phi = 1.618;
+    // Obliczamy ukryty złoty punkt (nie jest rysowany)
+    const appleGoldenX = appleX - appleRadius + (2 * appleRadius) / phi;
+    const appleGoldenY = appleY;
+    
+    function drawAppleGame() {
+      appleCtx.clearRect(0, 0, appleCanvas.width, appleCanvas.height);
+      // Rysujemy jabłko (czerwony okrąg)
+      appleCtx.beginPath();
+      appleCtx.arc(appleX, appleY, appleRadius, 0, Math.PI*2);
+      appleCtx.fillStyle = "red";
+      appleCtx.fill();
+      // Rysujemy łodygę
+      appleCtx.beginPath();
+      appleCtx.moveTo(appleX, appleY - appleRadius);
+      appleCtx.lineTo(appleX, appleY - appleRadius - 10);
+      appleCtx.strokeStyle = "green";
+      appleCtx.lineWidth = 4;
+      appleCtx.stroke();
+    }
+    drawAppleGame();
+    
+    appleCanvas.addEventListener("mousedown", function(e) {
+      appleIsSwiping = true;
+      appleSwipePoints = [{ x: e.offsetX, y: e.offsetY }];
     });
-    backToMenuBtn.addEventListener("click", function() {
-      gameState = "menu";
-      showSection("menu");
+    appleCanvas.addEventListener("mousemove", function(e) {
+      if(!appleIsSwiping) return;
+      appleSwipePoints.push({ x: e.offsetX, y: e.offsetY });
+      drawAppleGame();
+      // Rysowanie ścieżki swipa
+      if(appleSwipePoints.length > 1) {
+        appleCtx.strokeStyle = "rgba(0,255,0,0.5)";
+        appleCtx.lineWidth = 5;
+        appleCtx.beginPath();
+        appleCtx.moveTo(appleSwipePoints[0].x, appleSwipePoints[0].y);
+        appleSwipePoints.forEach(pt => {
+          appleCtx.lineTo(pt.x, pt.y);
+        });
+        appleCtx.stroke();
+      }
     });
-    backToMenuBtn2.addEventListener("click", function() {
-      gameState = "menu";
-      showSection("menu");
+    appleCanvas.addEventListener("mouseup", function(e) {
+      appleIsSwiping = false;
+      // Obliczamy minimalną odległość między złotym punktem a ścieżką
+      let minDist = Infinity;
+      appleSwipePoints.forEach(pt => {
+        let d = Math.sqrt((pt.x - appleGoldenX)**2 + (pt.y - appleGoldenY)**2);
+        if(d < minDist) minDist = d;
+      });
+      let score = Math.max(0, Math.round(100 - 2 * minDist));
+      appleResultDiv.textContent = `Twój wynik: ${score} (minimalna odległość: ${minDist.toFixed(1)} px)`;
+      setTimeout(() => { appleSwipePoints = []; drawAppleGame(); }, 1500);
     });
-    backToMenuBtn3.addEventListener("click", function() {
-      gameState = "menu";
-      showSection("menu");
+    document.getElementById("btnRetryApple").addEventListener("click", function() {
+      appleResultDiv.textContent = "";
+      appleSwipePoints = [];
+      drawAppleGame();
     });
-    resetGameBtn.addEventListener("click", resetGame);
+    function startAppleGame() {
+      appleResultDiv.textContent = "";
+      appleSwipePoints = [];
+      drawAppleGame();
+    }
+    
   </script>
 </body>
 </html>
